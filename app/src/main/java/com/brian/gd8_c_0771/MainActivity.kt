@@ -1,4 +1,4 @@
-package com.example.gd8_c_0771
+package com.brian.gd8_c_0771
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -10,6 +10,7 @@ import com.brian.gd8_c_0771.R
 import kotlinx.android.synthetic.main.activity_main.*
 import org.json.JSONException
 import org.json.JSONObject
+import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.CustomZoomButtonsController
@@ -28,9 +29,9 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        org.osmdroid.config.Configuration.getInstance().load(this, PreferenceManager.getDefaultSharedPreferences(this))
+        Configuration.getInstance().load(this, PreferenceManager.getDefaultSharedPreferences(this))
 
-        val geoPoint = GeoPoint( -7.78165, 110.414497)
+        val geoPoint = GeoPoint(-7.78165, 110.414497)
         mapView.setMultiTouchControls(true)
         mapView.controller.animateTo(geoPoint)
         mapView.setTileSource(TileSourceFactory.DEFAULT_TILE_SOURCE)
@@ -39,11 +40,10 @@ class MainActivity : AppCompatActivity() {
         mapController = mapView.controller as MapController
         mapController.setCenter(geoPoint)
         mapController.zoomTo(15)
-
-        getLocationMaker()
+        getLocationMarker()
     }
 
-    private fun getLocationMaker() {
+    private fun getLocationMarker() {
         try {
             val stream = assets.open("sample_maps.json")
             val size = stream.available()
@@ -59,10 +59,10 @@ class MainActivity : AppCompatActivity() {
                     val modelMain = ModelMain()
                     modelMain.strName = jsonObjectResult.getString("name")
                     modelMain.strVicinity = jsonObjectResult.getString("vicinity")
-
+                    //get lat long
                     val jsonObjectGeo = jsonObjectResult.getJSONObject("geometry")
                     val jsonObjectLoc = jsonObjectGeo.getJSONObject("location")
-                    modelMain.latloc = jsonObjectLoc.getDouble("lat")
+                    modelMain.longloc = jsonObjectLoc.getDouble("lat")
                     modelMain.longloc = jsonObjectLoc.getDouble("lng")
                     modelMainList.add(modelMain)
                 }
@@ -73,7 +73,7 @@ class MainActivity : AppCompatActivity() {
         } catch (ignored: IOException) {
             Toast.makeText(
                 this@MainActivity,
-                "Oops, ada yang tidak beres, Coba ulangi beberapa saat lagi",
+                "Oops, ada yang tidak beres. Coba ulangi beberapa saat lagi.",
                 Toast.LENGTH_SHORT
             ).show()
         }
@@ -91,7 +91,7 @@ class MainActivity : AppCompatActivity() {
             )
             val info = ModelMain()
             info.strName = modelList[i].strName
-            info.strVicinity = modelList[i].strVicinity
+            info.strName = modelList[i].strVicinity
 
             val marker = Marker(mapView)
             marker.icon = resources.getDrawable(R.drawable.ic_baseline_location_on_24)
@@ -101,16 +101,17 @@ class MainActivity : AppCompatActivity() {
             marker.setOnMarkerClickListener { item, arg1 ->
                 item.showInfoWindow()
                 true
-            }
 
+            }
             mapView.overlays.add(marker)
             mapView.invalidate()
         }
     }
 
+
     public override fun onResume() {
         super.onResume()
-        org.osmdroid.config.Configuration.getInstance().load(this, PreferenceManager.getDefaultSharedPreferences(this))
+        Configuration.getInstance().load(this, PreferenceManager.getDefaultSharedPreferences(this))
         if (mapView != null) {
             mapView.onResume()
         }
@@ -118,7 +119,7 @@ class MainActivity : AppCompatActivity() {
 
     public override fun onPause() {
         super.onPause()
-        org.osmdroid.config.Configuration.getInstance().load(this, PreferenceManager.getDefaultSharedPreferences(this))
+        Configuration.getInstance().load(this, PreferenceManager.getDefaultSharedPreferences(this))
         if (mapView != null) {
             mapView.onPause()
         }
